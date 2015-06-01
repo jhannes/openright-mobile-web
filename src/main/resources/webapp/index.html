@@ -104,5 +104,27 @@
   <footer>
     <h3>By Johannes Brodwall</h3>
   </footer>
+
+<script src="scripts/vendor/jquery-2.1.4.min.js"></script>
+<script>
+$(function() {
+  var $main = $("main");
+  var displayCurrentLocation = function() {
+    $("nav li").removeClass("active");
+    $main.find("article").fadeOut(100, function() {
+      window.scrollTo(0, 0);
+      $main.find(window.location.hash).fadeIn(1000);
+      $("nav li a[href=" + window.location.hash + "]")
+              .closest("li").addClass("active");
+    });
+  };
+
+  if (!window.location.hash) {
+    window.location.hash = "#chats";
+  }
+  $(window).bind('hashchange', displayCurrentLocation);
+  displayCurrentLocation();
+});
+</script>
 </body>
 </html>

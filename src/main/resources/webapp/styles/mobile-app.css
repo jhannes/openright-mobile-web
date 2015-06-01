@@ -1,0 +1,106 @@
+* {
+  font-family: 'Helvetica Neue', Roboto, sans-serif;
+  margin: 0;
+}
+
+/* START making the top and bottom "sticky" */
+header {
+  position: fixed;
+  top:0;
+}
+
+nav {
+  top: 3em;
+  position: fixed;
+}
+
+footer {
+  position: fixed;
+  bottom: 0px;
+}
+
+main {
+  margin-top: 6em;
+  margin-bottom: 3em;
+}
+/* END making the top and bottom "sticky" */
+
+/* START skin */
+header, nav, footer {
+  background-color: #387EF5;
+  color: white;
+}
+nav {
+  color: #444;
+}
+nav ul li.active {
+  border-bottom: solid 2px #444;
+}
+/* END skin */
+
+/* START header */
+header, nav, footer {
+  z-index: 2;
+}
+header {
+  height: 3em;
+  width: 100%;
+  overflow: hidden;
+  vertical-align: middle;
+  line-height: 3em;
+}
+header h1 {
+  font-weight: normal;
+  text-align: center;
+  font-size: 1.5em;
+}
+/* END header */
+
+/* START nav */
+nav {
+  height: 3em;
+  line-height: 3em;
+  overflow: hidden;
+  width: 100%;
+  vertical-align: baseline;
+}
+nav ul {
+  list-style: none;
+  height: 100%;
+  padding-left: 0;
+  display: -webkit-flex;
+  display: flex;
+  flex-direction: row;
+  -webkit-flex-direction: row;
+  justify-content: center;
+  -webkit-justify-content: center;
+}
+nav ul li {
+  padding-right: 3.5em;
+  padding-left: 3.5em;
+  display: inline-block;
+}
+nav a {
+  text-decoration: none;
+  opacity: 0.4;
+}
+nav ul li.active a {
+  opacity: 1;
+}
+/* END nav */
+
+footer {
+  height: 2.5em;
+  line-height: 2.5em;
+  overflow: hidden;
+  width: 100%;
+  z-index: 1;
+  vertical-align: middle;
+  text-align: center;
+}
+
+
+
+main article {
+  display: none;
+}
