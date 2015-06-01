@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Openright visual chat</title>
   <link rel="stylesheet" href="styles/mobile-app.css"/>
+  <link rel="stylesheet" href="styles/font-awesome.min.css"/>
 </head>
 <body>
   <header>
@@ -11,9 +12,9 @@
   </header>
   <nav>
     <ul>
-      <li><a href="#chats"><i>1</i></a></li>
-      <li><a href="#send"><i>2</i></a></li>
-      <li><a href="#settings"><i>3</i></a></li>
+      <li><a href="#chats"><i class="fa fa-comments fa-2x"></i></a></li>
+      <li><a href="#send"><i class="fa fa-comment-o fa-2x"></i></a></li>
+      <li><a href="#settings"><i class="fa fa-cogs fa-2x"></i></a></li>
     </ul>
   </nav>
   <main>
@@ -24,7 +25,7 @@
         <div class="message__header">
           <img src="images/svg/lizards.svg" width="100" alt=""/>
           <h2>Johannes Brodwall</h2>
-          <p class="timeago" title="2015-06-01T09:24:17Z">3 minutes ago</p>
+          <p class="timeago" title="2015-06-01T20:54:17Z">3 minutes ago</p>
         </div>
         <div class="message__body">
           <img class="full-image" src="images/picture1.jpg">
@@ -108,9 +109,13 @@
   </footer>
 
 <script src="scripts/vendor/jquery-2.1.4.min.js"></script>
+<script src="scripts/vendor/jquery.timeago.js" type="text/javascript"></script>
 <script>
 $(function() {
   var $main = $("main");
+
+  $(".timeago").timeago();
+
   var displayCurrentLocation = function() {
     $("nav li").removeClass("active");
     $main.find("article").fadeOut(100, function() {
