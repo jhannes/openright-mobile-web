@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Openright visual chat</title>
+  <link rel="stylesheet" href="styles/mobile-app.css"/>
+</head>
+<body>
+  <header>
+    <h1>Openright visual chat</h1>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="#chats"><i>1</i></a></li>
+      <li><a href="#send"><i>2</i></a></li>
+      <li><a href="#settings"><i>3</i></a></li>
+    </ul>
+  </nav>
+  <main>
+    <article id="chats">
+      <div class="message">
+        <div class="message__header">
+          <img src="images/avatar1.jpg" alt=""/>
+          <h2>Johannes Brodwall</h2>
+          <p class="timeago" title="2015-06-01T09:24:17Z">3 minutes ago</p>
+        </div>
+        <div class="message__body">
+          <img class="full-image" src="images/picture1.jpg">
+        </div>
+      </div>
+      <div class="message">
+        <div class="message__header">
+          <img src="images/avatar2.jpg" alt=""/>
+          <h2>Event Host</h2>
+          <p class="timeago" title="2015-06-01T09:11:12Z">13 minutes ago</p>
+        </div>
+        <div class="message__body">
+          <img class="full-image" src="images/picture2.jpg">
+        </div>
+      </div>
+    </article>
+    <article id="send">
+      <h2>Send a picture</h2>
+      <p>
+        <input type="file" id="take-picture" accept="image/*">
+      </p>
+    </article>
+    <article id="settings">
+      <div>
+        <label>Name: <input type="text"/></label>
+      </div>
+      <div>
+        <a href="#avatar">Capture avatar picture</a>
+      </div>
+      <div>
+        <label>Include location: <input type="checkbox"/></label>
+      </div>
+    </article>
+    <article id="avatar">
+      <div>
+        <label>
+          Capture avatar picture
+          <input type="file" id="avatar-picture" accept="image/*">
+        </label>
+      </div>
+    </article>
+    <article>
+      <div class="card">
+        <div class="card__header">
+          Mobile Web Showcase
+        </div>
+        <p class="card__body">
+          This application shows a number of neat features of mobile web
+        </p>
+      </div>
+      <div class="card">
+        <p class="card__body">
+          Styling for a mobile look and feel, installing on the home screen
+        </p>
+      </div>
+      <div class="card">
+        <p class="card__body">
+          Camera controls in web pages
+        </p>
+      </div>
+      <div class="card">
+        <p class="card__body">
+          Offline support (and offline detection)
+        </p>
+      </div>
+      <div class="card">
+        <p class="card__body">
+          Push messages
+        </p>
+      </div>
+      <div class="card">
+        <p class="card__body">
+          Vibration
+        </p>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <h3>By Johannes Brodwall</h3>
+  </footer>
+</body>
+</html>
