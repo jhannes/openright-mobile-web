@@ -5,22 +5,23 @@
 
 /* START making the top and bottom "sticky" */
 header {
+  height: 3em;
+  line-height: 3em;
   position: fixed;
   top:0;
 }
-
 nav {
   top: 3em;
+  height: 3em;
+  line-height: 3em;
   position: fixed;
 }
-
 footer {
   position: fixed;
-  bottom: 0px;
+  bottom: 0;
 }
-
 main {
-  margin-top: 6em;
+  margin-top: 7em;
   margin-bottom: 3em;
 }
 /* END making the top and bottom "sticky" */
@@ -43,11 +44,9 @@ header, nav, footer {
   z-index: 2;
 }
 header {
-  height: 3em;
   width: 100%;
   overflow: hidden;
   vertical-align: middle;
-  line-height: 3em;
 }
 header h1 {
   font-weight: normal;
@@ -99,8 +98,42 @@ footer {
   text-align: center;
 }
 
-
-
 main article {
   display: none;
 }
+
+/* BEGIN message styles */
+.message {
+  color: #666;
+  margin: 20px 10px 20px 10px;
+  box-shadow: rgba(0, 0, 0, 0.247059) 0 1px 4px 0;
+}
+
+.message__header {
+  padding: 16px 16px 16px 72px;
+  border-bottom: 2px solid #ddd;
+}
+.message__header img {
+  max-width: 40px;
+  max-height: 40px;
+  border-radius: 25%;
+  position: absolute;
+  left: 32px;
+  z-index: -100;
+}
+.message__header h2 {
+  font-size: 16px;
+}
+.message__header p {
+  font-size: 14px;
+}
+.message__body img {
+  width: 100%;
+  max-width: 400px;
+}
+.message__body {
+  text-align: center;
+  padding: 16px 16px 16px 16px;
+  border-bottom: 2px solid #ddd;
+}
+/* END message styles */
