@@ -1,0 +1,43 @@
+<configuration scan="true" scanPeriod="5 seconds">
+
+	<appender name="ALERT" class="ch.qos.logback.core.FileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>WARN</level>
+		</filter>
+		<file>logs/ALERT-parental-benefits.log</file>
+		<encoder>
+			<pattern>{%-5level} %date [%thread] %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/parental-benefits.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>logs/parental-benefits.log.%d{yyyy-MM-dd}</fileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>{%-5level} %date [%thread] %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<encoder>
+			<pattern>{%-5level} %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="net.openright" level="debug" />
+
+	<logger name="org.eclipse.jetty" level="warn" />
+	<logger name="com.zaxxer.hikari" level="warn" />
+
+	<root level="debug">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="ALERT" />
+		<appender-ref ref="FILE" />
+	</root>
+</configuration>
