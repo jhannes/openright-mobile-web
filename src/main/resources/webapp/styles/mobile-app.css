@@ -97,7 +97,7 @@ footer {
   text-align: center;
 }
 
-main article {
+section#article-base {
   display: none;
 }
 
@@ -158,3 +158,4 @@ main article {
   border-bottom: 2px solid #ddd;
 }
 /* END card style */
+

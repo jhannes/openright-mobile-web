@@ -21,9 +21,9 @@
     </ul>
   </nav>
   <main>
+  </main>
+  <section id="article-base">
     <article id="chats">
-
-
       <div class="message">
         <div class="message__header">
           <img src="images/svg/lizards.svg" width="100" alt=""/>
@@ -105,8 +105,7 @@
         </p>
       </div>
     </article>
-  </main>
-
+  </section>
   <footer>
     <h3>By Johannes Brodwall (<a href="#about">about</a>)</h3>
   </footer>
@@ -119,15 +118,20 @@ $(function() {
 
   $(".timeago").timeago();
 
-  var displayCurrentLocation = function() {
+  function displayCurrentLocation() {
     $("nav li").removeClass("active");
-    $main.find("article").fadeOut(100, function() {
+    $main.fadeOut(500).hide(function() {
       window.scrollTo(0, 0);
-      $main.find(window.location.hash).fadeIn(1000);
+      $main.html($(window.location.hash).clone());
+      $main.fadeIn(1000);
       $("nav li a[href=" + window.location.hash + "]")
               .closest("li").addClass("active");
+
+      if ($main.find($(window.location.hash)).attr("onshow")) {
+        eval($main.find($(window.location.hash)).attr("onshow"));
+      }
     });
-  };
+  }
 
   if (!window.location.hash) {
     window.location.hash = "#chats";
