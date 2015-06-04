@@ -16,7 +16,7 @@
   <nav>
     <ul>
       <li><a href="#chats"><i class="fa fa-comments fa-2x"></i></a></li>
-      <li><a href="#send"><i class="fa fa-comment-o fa-2x"></i></a></li>
+      <li><a href="#camera"><i class="fa fa-comment-o fa-2x"></i></a></li>
       <li><a href="#settings"><i class="fa fa-cogs fa-2x"></i></a></li>
     </ul>
   </nav>
@@ -45,11 +45,32 @@
         </div>
       </div>
     </article>
-    <article id="send">
-      <h2>Send a picture</h2>
-      <p>
-        <input type="file" id="take-picture" accept="image/*">
-      </p>
+    <article id="camera" onshow="showCamera()">
+      <div class="card" id="camera__viewfinder">
+        <div class="card__header">
+          Send a picture
+        </div>
+        <div class="card__body" id="camera__video">
+          <video autoplay height="200px" width="250px"></video>
+          <canvas style="display: none"></canvas>
+          <p><label>
+            <input id="camera__include_location" type="checkbox" onchange="showLocation()">Include my location
+          </label></p>
+        </div>
+        <div>
+          <button id="camera__captureButton" disabled>Capture picture</button>
+        </div>
+      </div>
+      <div class="card" id="camera__confirm">
+        <div class="card__header">
+          Preview
+        </div>
+        <div class="card__body">
+          <img height="200px" id="camera__picture" />
+          <button id="camera__sendButton" onclick="sendPicture()">Send</button>
+          <button id="camera__retryButton" onclick="showCamera()">Retry</button>
+        </div>
+      </div>
     </article>
     <article id="settings">
       <div>
@@ -113,6 +134,14 @@
 <script src="scripts/vendor/jquery-2.1.4.min.js"></script>
 <script src="scripts/vendor/jquery.timeago.js" type="text/javascript"></script>
 <script>
+navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate
+        || function() { console.log("I would normally vibrate..."); };
+navigator.getUserMedia = navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia ||
+        function(options, callback, errorHandler) { errorHandler("getUserMedia not supported"); };
+
 $(function() {
   var $main = $("main");
 
@@ -139,6 +168,73 @@ $(function() {
   $(window).bind('hashchange', displayCurrentLocation);
   displayCurrentLocation();
 });
+
+  function sendPicture() {
+    // camera__include_location
+    // camera__picture
+    var camera = document.querySelector("#camera");
+    console.log("location", camera.querySelector("#camera__include_location").checked);
+    console.log("location", camera.querySelector("#camera__include_location").dataset.longitude);
+    console.log("location", camera.querySelector("#camera__include_location").dataset.latitude);
+    console.log("picture", camera.querySelector("#camera__picture").src);
+    window.location.hash = "#chats";
+  }
+
+  function previewCamera(cameraId) {
+    navigator.getUserMedia({video: { optional: [{sourceId: cameraId}] } }, function(stream) {
+      var camera = document.querySelector("#camera");
+      var video = camera.querySelector("video");
+      video.src = window.URL.createObjectURL(stream);
+      var captureButton = camera.querySelector("#camera__captureButton");
+      captureButton.disabled = false;
+      captureButton.onclick  = function() {
+        var canvas = camera.querySelector("canvas");
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        camera.querySelector("#camera__picture").src = canvas.toDataURL('image/png');
+        $(camera.querySelector(".card")).hide();
+        $(camera.querySelector("#camera__confirm")).show();
+        navigator.vibrate([100, 100, 100, 100, 100]);
+      };
+    }, function errorHandler(error) {
+      console.error(error);
+    });
+  }
+
+  function showCamera() {
+    var $camera = $("#camera");
+    $camera.find(".card:not(:first)").hide();
+    $camera.find(".card:first").show();
+
+    MediaStreamTrack.getSources(function(sources) {
+      var videoSources = sources.filter(function(s) { return s.kind === "video"; });
+
+      if (videoSources.length > 1) {
+        videoSources.forEach(function(s) {
+          if (s.facing) {
+            $camera.find("#camera__video").append(
+                    $("<button>").text(s.facing).click(function() { previewCamera(s.id); }));
+          }
+        });
+      }
+      previewCamera(videoSources[0].id);
+    });
+  }
+
+  function showLocation() {
+    var camera = document.querySelector("#camera");
+    var location = camera.querySelector("#camera__include_location");
+    if (location.checked) {
+      location.checked = false;
+      navigator.geolocation.getCurrentPosition(function(l) {
+        location.checked = true;
+        location.dataset.longitude = l.coords.longitude;
+        location.dataset.latitude = l.coords.latitude;
+      });
+    }
+  }
 </script>
 </body>
 </html>
