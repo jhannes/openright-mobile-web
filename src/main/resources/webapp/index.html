@@ -23,7 +23,7 @@
   <main>
   </main>
   <section id="article-base">
-    <article id="chats">
+    <article id="chats" onshow="showMessages()">
       <div class="message">
         <div class="message__header">
           <img src="images/svg/lizards.svg" width="100" alt=""/>
@@ -133,6 +133,21 @@
 
 <script src="scripts/vendor/jquery-2.1.4.min.js"></script>
 <script src="scripts/vendor/jquery.timeago.js" type="text/javascript"></script>
+<script src="scripts/vendor/handlebars.js" type="text/javascript"></script>
+<script type="text/x-handlebars-template" id="messageTemplate">
+  {{#each .}}
+    <div class="message">
+      <div class="message__header">
+        <img src="images/svg/lizards.svg" width="100" alt=""/>
+        <h2>Johannes Brodwall</h2>
+        <p class="timeago" title="{{createdAt}}">&nbsp;</p>
+      </div>
+      <div class="message__body">
+        <img class="full-image" src="{{picture}}">
+      </div>
+    </div>
+  {{/each}}
+</script>
 <script>
 navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate
         || function() { console.log("I would normally vibrate..."); };
@@ -141,6 +156,8 @@ navigator.getUserMedia = navigator.getUserMedia ||
         navigator.mozGetUserMedia ||
         navigator.msGetUserMedia ||
         function(options, callback, errorHandler) { errorHandler("getUserMedia not supported"); };
+
+var messageTemplate = Handlebars.compile(document.querySelector("#messageTemplate").innerHTML);
 
 $(function() {
   var $main = $("main");
@@ -170,14 +187,26 @@ $(function() {
 });
 
   function sendPicture() {
-    // camera__include_location
-    // camera__picture
     var camera = document.querySelector("#camera");
-    console.log("location", camera.querySelector("#camera__include_location").checked);
-    console.log("location", camera.querySelector("#camera__include_location").dataset.longitude);
-    console.log("location", camera.querySelector("#camera__include_location").dataset.latitude);
-    console.log("picture", camera.querySelector("#camera__picture").src);
-    window.location.hash = "#chats";
+    var location = camera.querySelector("#camera__include_location");
+    var message = {
+      picture: camera.querySelector("#camera__picture").src,
+      location: location.checked,
+      longitude: location.dataset.longitude,
+      latitude: location.dataset.latitude
+    };
+    fetch("api/messages", {
+      method: 'post',
+      headers: {
+        'Content-type': 'text/json'
+      },
+      body: JSON.stringify(message)
+    }).then(function() {
+      window.location.hash = "#chats";
+    }).catch(function(error) {
+      console.log("error");
+      console.log(error);
+    });
   }
 
   function previewCamera(cameraId) {
@@ -196,6 +225,7 @@ $(function() {
         camera.querySelector("#camera__picture").src = canvas.toDataURL('image/png');
         $(camera.querySelector(".card")).hide();
         $(camera.querySelector("#camera__confirm")).show();
+        stream.stop();
         navigator.vibrate([100, 100, 100, 100, 100]);
       };
     }, function errorHandler(error) {
@@ -219,7 +249,7 @@ $(function() {
           }
         });
       }
-      previewCamera(videoSources[0].id);
+      previewCamera(videoSources[videoSources.length-1].id);
     });
   }
 
@@ -235,6 +265,19 @@ $(function() {
       });
     }
   }
+
+  function showMessages() {
+    var $chats = $("#chats");
+    $chats.empty();
+    fetch("api/messages").then(function(response) {
+      return response.json();
+    }).then(function(data) {
+      console.log(data.messages.length, "messages")
+      $chats.html(messageTemplate(data.messages));
+      $(".timeago").timeago();
+    });
+  }
+
 </script>
 </body>
 </html>

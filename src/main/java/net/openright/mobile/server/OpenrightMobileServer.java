@@ -1,11 +1,14 @@
 package net.openright.mobile.server;
 
-import net.openright.mobile.util.IOUtil;
-import net.openright.mobile.util.LogUtil;
+import net.openright.mobile.messages.MessageServlet;
+import net.openright.infrastructure.util.IOUtil;
+import net.openright.infrastructure.util.LogUtil;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.MovedContextHandler;
 import org.eclipse.jetty.server.handler.ShutdownHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -28,9 +31,17 @@ public class OpenrightMobileServer {
     protected HandlerList createHandlers() {
         HandlerList handlers = new HandlerList();
         handlers.addHandler(new ShutdownHandler("dsgsdglsdgsdgnk", false, true));
+        handlers.addHandler(createWebApi());
         handlers.addHandler(createWebApp());
         handlers.addHandler(new MovedContextHandler(null, "/", "/mobile"));
         return handlers;
+    }
+
+    private ServletContextHandler createWebApi() {
+        ServletContextHandler handler = new ServletContextHandler();
+        handler.setContextPath("/mobile/api");
+        handler.addServlet(new ServletHolder(new MessageServlet()), "/messages");
+        return handler;
     }
 
     protected WebAppContext createWebApp() {

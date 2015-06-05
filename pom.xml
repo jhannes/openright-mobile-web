@@ -24,6 +24,11 @@
             <artifactId>jetty-plus</artifactId>
             <version>9.2.10.v20150310</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20141113</version>
+        </dependency>
     </dependencies>
 
     <build>

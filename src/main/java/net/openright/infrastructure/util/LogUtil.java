@@ -1,4 +1,4 @@
-package net.openright.mobile.util;
+package net.openright.infrastructure.util;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;

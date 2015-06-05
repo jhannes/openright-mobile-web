@@ -1,4 +1,4 @@
-package net.openright.mobile.util;
+package net.openright.infrastructure.util;
 
 public class ExceptionUtil {
     public static RuntimeException soften(Exception e) {

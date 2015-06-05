@@ -1,4 +1,4 @@
-package net.openright.mobile.util;
+package net.openright.infrastructure.util;
 
 import java.io.File;
 import java.io.FileInputStream;
