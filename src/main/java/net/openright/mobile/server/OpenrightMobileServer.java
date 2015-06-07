@@ -3,6 +3,7 @@ package net.openright.mobile.server;
 import net.openright.mobile.messages.MessageServlet;
 import net.openright.infrastructure.util.IOUtil;
 import net.openright.infrastructure.util.LogUtil;
+import net.openright.mobile.texts.TextMessageServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.MovedContextHandler;
@@ -41,6 +42,7 @@ public class OpenrightMobileServer {
         ServletContextHandler handler = new ServletContextHandler();
         handler.setContextPath("/mobile/api");
         handler.addServlet(new ServletHolder(new MessageServlet()), "/messages");
+        handler.addServlet(new ServletHolder(new TextMessageServlet()), "/text/messages");
         return handler;
     }
 

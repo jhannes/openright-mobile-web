@@ -1,0 +1,33 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Text chat demo</title>
+  <style>
+    #messages p {
+      padding: 16px 16px 16px 16px;
+      border-bottom: 2px solid #ddd;
+    }
+    #messages {
+      border: 2px solid blue;
+      height: 75%;
+      overflow: scroll;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="messages">
+    <p>First message</p>
+    <p>Second message</p>
+  </div>
+  <div id="message">
+    <p>
+      <label>Your message: <input type="text" id="message__text" /></label>
+    </p>
+    <p>
+      <button onclick="sendMessage()">Send message</button>
+    </p>
+  </div>
+</body>
+<script src="text-message.js"></script>
+</html>
