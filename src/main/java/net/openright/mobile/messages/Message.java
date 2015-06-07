@@ -8,8 +8,10 @@ public class Message {
     private Instant createdAt = Instant.now();
     private String pictureDataUrl;
     private boolean hasLocation;
-    private double longitude;
-    private double latitude;
+    private Double longitude;
+    private Double latitude;
+    private String avatarDataUrl;
+    private String name;
 
     public Instant getCreatedAt() {
         return createdAt;
@@ -17,15 +19,21 @@ public class Message {
 
     static Message fromJSON(JSONObject jsonObject) {
         Message message = new Message();
+        message.name = jsonObject.optString("name");
+        message.avatarDataUrl = jsonObject.optString("avatar");
         message.pictureDataUrl = jsonObject.getString("picture");
         message.hasLocation = jsonObject.getBoolean("location");
-        message.longitude = jsonObject.optDouble("longitude");
-        message.latitude = jsonObject.optDouble("latitude");
+        message.longitude = (Double) jsonObject.opt("longitude");
+        message.latitude = (Double) jsonObject.opt("latitude");
         return message;
     }
 
     public JSONObject toJSON() {
         return new JSONObject()
+                .put("name", name)
+                .put("avatar", avatarDataUrl)
+                .put("longitude", longitude)
+                .put("latitude", latitude)
                 .put("createdAt", createdAt)
                 .put("picture", pictureDataUrl);
     }

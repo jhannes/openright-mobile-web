@@ -24,26 +24,7 @@
   </main>
   <section id="article-base">
     <article id="chats" onshow="showMessages()">
-      <div class="message">
-        <div class="message__header">
-          <img src="images/svg/lizards.svg" width="100" alt=""/>
-          <h2>Johannes Brodwall</h2>
-          <p class="timeago" title="2015-06-01T20:54:17Z">3 minutes ago</p>
-        </div>
-        <div class="message__body">
-          <img class="full-image" src="images/picture1.jpg">
-        </div>
-      </div>
-      <div class="message">
-        <div class="message__header">
-          <img src="images/svg/shell.svg" width="100" alt=""/>
-          <h2>Event Host</h2>
-          <p class="timeago" title="2015-06-01T09:11:12Z">13 minutes ago</p>
-        </div>
-        <div class="message__body">
-          <img class="full-image" src="images/picture2.jpg">
-        </div>
-      </div>
+
     </article>
     <article id="camera" onshow="showCamera()">
       <div class="card" id="camera__viewfinder">
@@ -56,6 +37,7 @@
           <p><label>
             <input id="camera__include_location" type="checkbox" onchange="showLocation()">Include my location
           </label></p>
+          <div id="camera__video_sources"></div>
         </div>
         <div>
           <button id="camera__captureButton" disabled>Capture picture</button>
@@ -72,23 +54,50 @@
         </div>
       </div>
     </article>
-    <article id="settings">
-      <div>
-        <label>Name: <input type="text"/></label>
+    <article id="settings" onshow="showPersonalInfo()">
+      <div class="card">
+        <div class="card__header">
+          <p>Personal information</p>
+        </div>
+        <div class="card__body">
+          <form onsubmit="savePersonalInfo()">
+            <label class="field">Name: <input type="text" id="settings__name"/></label>
+            <label class="field">Email: <input type="email" id="settings__email"/></label>
+            <label class="field">Location: <input type="text" id="settings__location"/></label>
+            <button>Save</button>
+          </form>
+        </div>
       </div>
-      <div>
-        <a href="#avatar">Capture avatar picture</a>
-      </div>
-      <div>
-        <label>Include location: <input type="checkbox"/></label>
+      <div class="card">
+        <div class="card__header">Avatar picture</div>
+        <div class="card__body">
+          <img height="100px" id="settings__avatar" />
+          <p><a href="#avatar">Capture avatar picture</a></p>
+        </div>
       </div>
     </article>
-    <article id="avatar">
-      <div>
-        <label>
-          Capture avatar picture
-          <input type="file" id="avatar-picture" accept="image/*">
-        </label>
+    <article id="avatar" onshow="showAvatarCamera()">
+      <div class="card" id="avatar__viewfinder">
+        <div class="card__header">
+          Capture avatar
+        </div>
+        <div class="card__body" id="avatar__video">
+          <video autoplay height="100px"></video>
+          <canvas style="display: none"></canvas>
+        </div>
+        <div>
+          <button id="avatar__captureButton" disabled>Capture picture</button>
+        </div>
+      </div>
+      <div class="card" id="avatar__confirm">
+        <div class="card__header">
+          Preview
+        </div>
+        <div class="card__body">
+          <img height="100px" id="avatar__preview_picture" />
+          <button id="avatar__sendButton" onclick="saveAvatar()">Save</button>
+          <button id="avatar__retryButton" onclick="showAvatarCamera()">Retry</button>
+        </div>
       </div>
     </article>
     <article id="about">
@@ -138,8 +147,19 @@
   {{#each .}}
     <div class="message">
       <div class="message__header">
-        <img src="images/svg/lizards.svg" width="100" alt=""/>
-        <h2>Johannes Brodwall</h2>
+        {{#if avatar}}
+          <img src="{{avatar}}" width="100" alt=""/>
+        {{else}}
+          <img src="images/anonymous.jpg" width="100" alt=""/>
+        {{/if}}
+        <h2>
+          {{name}}
+          {{#if latitude}}
+            <a class="fa fa-location-arrow"
+                href="http://maps.googleapis.com/maps/api/staticmap?center={{latitude}},{{longitude}}&zoom=14&size=400x300&sensor=false">
+            </a>
+          {{/if}}
+        </h2>
         <p class="timeago" title="{{createdAt}}">&nbsp;</p>
       </div>
       <div class="message__body">
@@ -186,98 +206,160 @@ $(function() {
   displayCurrentLocation();
 });
 
-  function sendPicture() {
+function sendPicture() {
+  var camera = document.querySelector("#camera");
+  var location = camera.querySelector("#camera__include_location");
+  var message = {
+    name: localStorage.getItem("name") || "Anonymous",
+    avatar: localStorage.getItem("avatar"),
+    picture: camera.querySelector("#camera__picture").src,
+    location: location.checked,
+    longitude: location.dataset.longitude,
+    latitude: location.dataset.latitude
+  };
+  fetch("api/messages", {
+    method: 'post',
+    headers: {
+      'Content-type': 'text/json'
+    },
+    body: JSON.stringify(message)
+  }).then(function() {
+    window.location.hash = "#chats";
+  }).catch(function(error) {
+    console.log("error");
+    console.log(error);
+  });
+}
+
+function capturePictureMessage(videoSources, sourceId) {
+  navigator.getUserMedia({video: {optional: [{sourceId: sourceId}]}}, function (stream) {
     var camera = document.querySelector("#camera");
-    var location = camera.querySelector("#camera__include_location");
-    var message = {
-      picture: camera.querySelector("#camera__picture").src,
-      location: location.checked,
-      longitude: location.dataset.longitude,
-      latitude: location.dataset.latitude
+    var video = camera.querySelector("video");
+    video.src = window.URL.createObjectURL(stream);
+    var captureButton = camera.querySelector("#camera__captureButton");
+
+    captureButton.disabled = false;
+    captureButton.onclick = function () {
+      camera.querySelector("#camera__picture").src =
+              captureVideoSnapshot(camera.querySelector("canvas"), video, stream);
+      $(camera.querySelector(".card")).hide();
+      $(camera.querySelector("#camera__confirm")).show();
+      navigator.vibrate([100, 100, 100, 100, 100]);
     };
-    fetch("api/messages", {
-      method: 'post',
-      headers: {
-        'Content-type': 'text/json'
-      },
-      body: JSON.stringify(message)
-    }).then(function() {
-      window.location.hash = "#chats";
-    }).catch(function(error) {
-      console.log("error");
-      console.log(error);
-    });
-  }
 
-  function previewCamera(cameraId) {
-    navigator.getUserMedia({video: { optional: [{sourceId: cameraId}] } }, function(stream) {
-      var camera = document.querySelector("#camera");
-      var video = camera.querySelector("video");
-      video.src = window.URL.createObjectURL(stream);
-      var captureButton = camera.querySelector("#camera__captureButton");
-      captureButton.disabled = false;
-      captureButton.onclick  = function() {
-        var canvas = camera.querySelector("canvas");
-        canvas.height = video.videoHeight;
-        canvas.width = video.videoWidth;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        camera.querySelector("#camera__picture").src = canvas.toDataURL('image/png');
-        $(camera.querySelector(".card")).hide();
-        $(camera.querySelector("#camera__confirm")).show();
-        stream.stop();
-        navigator.vibrate([100, 100, 100, 100, 100]);
-      };
-    }, function errorHandler(error) {
-      console.error(error);
-    });
-  }
-
-  function showCamera() {
-    var $camera = $("#camera");
-    $camera.find(".card:not(:first)").hide();
-    $camera.find(".card:first").show();
-
-    MediaStreamTrack.getSources(function(sources) {
-      var videoSources = sources.filter(function(s) { return s.kind === "video"; });
-
-      if (videoSources.length > 1) {
-        videoSources.forEach(function(s) {
-          if (s.facing) {
-            $camera.find("#camera__video").append(
-                    $("<button>").text(s.facing).click(function() { previewCamera(s.id); }));
-          }
-        });
+    camera.querySelector("#camera__video_sources").innerHTML = null;
+    videoSources.forEach(function (s) {
+      if (s.facing && s.id !== sourceId) {
+        var button = document.createElement("button");
+        button.textContent = s.facing;
+        button.onclick = function() {
+          stream.stop();
+          capturePictureMessage(videoSources, s.id);
+        };
+        camera.querySelector("#camera__video_sources").appendChild(button);
       }
-      previewCamera(videoSources[videoSources.length-1].id);
+    });
+  }, function errorHandler(error) {
+    console.error(error);
+  });
+}
+
+function showCamera() {
+  var $camera = $("#camera");
+  $camera.find(".card:not(:first)").hide();
+  $camera.find(".card:first").show();
+
+  MediaStreamTrack.getSources(function(sources) {
+    var videoSources = sources.filter(function(s) { return s.kind === "video"; });
+    capturePictureMessage(videoSources, videoSources[videoSources.length - 1].id);
+  });
+}
+
+function showLocation() {
+  var camera = document.querySelector("#camera");
+  var location = camera.querySelector("#camera__include_location");
+  if (location.checked) {
+    location.checked = false;
+    navigator.geolocation.getCurrentPosition(function(l) {
+      location.checked = true;
+      location.dataset.longitude = l.coords.longitude;
+      location.dataset.latitude = l.coords.latitude;
     });
   }
+}
 
-  function showLocation() {
-    var camera = document.querySelector("#camera");
-    var location = camera.querySelector("#camera__include_location");
-    if (location.checked) {
-      location.checked = false;
-      navigator.geolocation.getCurrentPosition(function(l) {
-        location.checked = true;
-        location.dataset.longitude = l.coords.longitude;
-        location.dataset.latitude = l.coords.latitude;
-      });
-    }
-  }
+function showMessages() {
+  var $chats = $("#chats");
+  $chats.empty();
+  fetch("api/messages").then(function(response) {
+    return response.json();
+  }).then(function(data) {
+    $chats.html(messageTemplate(data.messages));
+    $(".timeago").timeago();
+  });
+}
 
-  function showMessages() {
-    var $chats = $("#chats");
-    $chats.empty();
-    fetch("api/messages").then(function(response) {
-      return response.json();
-    }).then(function(data) {
-      console.log(data.messages.length, "messages")
-      $chats.html(messageTemplate(data.messages));
-      $(".timeago").timeago();
-    });
-  }
+function savePersonalInfo() {
+  window.event.preventDefault();
+  localStorage.setItem("name", $("#settings__name").val());
+  localStorage.setItem("email", $("#settings__email").val());
+  localStorage.setItem("location", $("#settings__location").val());
+  window.location.hash = "chats";
+}
 
+function showPersonalInfo() {
+  $("#settings__name").val(localStorage.getItem("name"));
+  $("#settings__email").val(localStorage.getItem("email"));
+  $("#settings__location").val(localStorage.getItem("location"));
+  $("#settings__avatar").attr("src", localStorage.getItem("avatar"));
+}
+
+function captureVideoSnapshot(canvas, video, stream) {
+  canvas.height = video.height;
+  canvas.width = (video.videoWidth * canvas.height) / video.videoHeight;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  var dataURL = canvas.toDataURL('image/jpeg');
+  stream.stop();
+  return dataURL;
+}
+
+function previewAvatarCamera(cameraId) {
+  navigator.getUserMedia({video: { optional: [{sourceId: cameraId}] } }, function(stream) {
+    var camera = document.querySelector("#avatar");
+    var video = camera.querySelector("video");
+    var captureButton = camera.querySelector("#avatar__captureButton");
+
+    video.src = window.URL.createObjectURL(stream);
+    captureButton.disabled = false;
+    captureButton.onclick  = function() {
+      var dataURL = captureVideoSnapshot(camera.querySelector("canvas"), video, stream);
+      camera.querySelector("#avatar__preview_picture").src = dataURL;
+      $(camera.querySelectorAll(".card")).hide();
+      $(camera.querySelector("#avatar__confirm")).show();
+      navigator.vibrate([100, 100, 100, 100, 100]);
+    };
+  }, function errorHandler(error) {
+    console.error(error);
+  });
+}
+
+function saveAvatar() {
+  window.event.preventDefault();
+  localStorage.setItem("avatar", document.querySelector("#avatar__preview_picture").src);
+  window.location.hash = "settings";
+}
+
+function showAvatarCamera() {
+  var $camera = $("#avatar");
+  $camera.find(".card:not(:first)").hide();
+  $camera.find(".card:first").show();
+
+  MediaStreamTrack.getSources(function(sources) {
+    var videoSources = sources.filter(function(s) { return s.kind === "video" && (!s.facing || s.facing == "user"); });
+    previewAvatarCamera(videoSources[videoSources.length-1].id);
+  });
+}
 </script>
 </body>
 </html>

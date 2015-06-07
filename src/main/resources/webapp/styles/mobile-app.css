@@ -165,8 +165,8 @@ section#article-base {
   display: block;
   clear: both;
   padding: 0 1em;
-  min-height: 52px;
-  min-width: 52px;
+  min-height: 3em;
+  min-width: 3em;
   font-family: 'Helvetica Neue', Roboto, 'Segoe UI', sans-serif;
   font-size: 16px;
   color: white;
@@ -181,3 +181,16 @@ section#article-base {
 }
 /* END card style */
 
+label.field {
+  font-weight: bold;
+  margin: 0.5em 0.5em;
+  display: inline-block;
+  max-width: 25em;
+  width: 90%;
+}
+
+label.field input {
+  display: block;
+  height: 1.5em;
+  width: 100%;
+}
