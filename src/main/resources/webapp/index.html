@@ -116,6 +116,11 @@
       </div>
       <div class="card">
         <p class="card__body">
+          Vibration and location APIs
+        </p>
+      </div>
+      <div class="card">
+        <p class="card__body">
           Camera controls in web pages
         </p>
       </div>
@@ -127,11 +132,6 @@
       <div class="card">
         <p class="card__body">
           Push messages
-        </p>
-      </div>
-      <div class="card">
-        <p class="card__body">
-          Vibration
         </p>
       </div>
     </article>
@@ -327,17 +327,17 @@ function captureVideoSnapshot(canvas, video, stream) {
 function previewAvatarCamera(cameraId) {
   navigator.getUserMedia({video: { optional: [{sourceId: cameraId}] } }, function(stream) {
     var camera = document.querySelector("#avatar");
-    var video = camera.querySelector("video");
-    var captureButton = camera.querySelector("#avatar__captureButton");
 
+    var video = camera.querySelector("video");
     video.src = window.URL.createObjectURL(stream);
+
+    var captureButton = camera.querySelector("#avatar__captureButton");
     captureButton.disabled = false;
     captureButton.onclick  = function() {
       var dataURL = captureVideoSnapshot(camera.querySelector("canvas"), video, stream);
       camera.querySelector("#avatar__preview_picture").src = dataURL;
       $(camera.querySelectorAll(".card")).hide();
       $(camera.querySelector("#avatar__confirm")).show();
-      navigator.vibrate([100, 100, 100, 100, 100]);
     };
   }, function errorHandler(error) {
     console.error(error);
@@ -356,8 +356,10 @@ function showAvatarCamera() {
   $camera.find(".card:first").show();
 
   MediaStreamTrack.getSources(function(sources) {
-    var videoSources = sources.filter(function(s) { return s.kind === "video" && (!s.facing || s.facing == "user"); });
-    previewAvatarCamera(videoSources[videoSources.length-1].id);
+    var videoSources = sources.filter(function(s) {
+      return s.kind === "video" && (!s.facing || s.facing == "user");
+    });
+    previewAvatarCamera(videoSources[0].id);
   });
 }
 </script>
