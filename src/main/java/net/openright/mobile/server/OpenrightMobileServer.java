@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 public class OpenrightMobileServer {
 
@@ -41,7 +43,9 @@ public class OpenrightMobileServer {
     private ServletContextHandler createWebApi() {
         ServletContextHandler handler = new ServletContextHandler();
         handler.setContextPath("/mobile/api");
-        handler.addServlet(new ServletHolder(new MessageServlet()), "/messages");
+        Set<String> registrations = new HashSet<>();
+        handler.addServlet(new ServletHolder(new MessageServlet(config, registrations)), "/messages");
+        handler.addServlet(new ServletHolder(new SubscriberServlet(registrations)), "/subscribers");
         handler.addServlet(new ServletHolder(new TextMessageServlet()), "/text/messages");
         return handler;
     }

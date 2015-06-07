@@ -138,4 +138,23 @@ public class IOUtil {
             throw ExceptionUtil.soften(e);
         }
     }
+
+    public static String toString(HttpURLConnection urlConnection) {
+        try (Reader reader = createReader(urlConnection)) {
+            return toString(reader);
+        } catch (IOException e) {
+            throw ExceptionUtil.soften(e);
+        }
+    }
+
+    private static Reader createReader(HttpURLConnection urlConnection) throws IOException {
+        InputStream stream;
+        if (urlConnection.getResponseCode() < 400) {
+            stream = urlConnection.getInputStream();
+        } else {
+            stream = urlConnection.getErrorStream();
+        }
+        String contentEncoding = urlConnection.getContentEncoding();
+        return new InputStreamReader(stream, contentEncoding != null ? contentEncoding : "UTF-8");
+    }
 }

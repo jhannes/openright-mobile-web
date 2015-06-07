@@ -46,9 +46,10 @@ public class AppConfigFile {
             log.trace("Reading {} from system properties", propertyName);
             return System.getProperty(propertyName);
         }
-        if (System.getenv(propertyName.replace('.', '_')) != null) {
+        String envVariable = System.getenv(propertyName.replace('.', '_').toUpperCase());
+        if (envVariable != null) {
             log.trace("Reading {} from environment", propertyName);
-            return System.getenv(propertyName.replace('.', '_'));
+            return envVariable;
         }
 
         ensureConfigurationIsFresh();

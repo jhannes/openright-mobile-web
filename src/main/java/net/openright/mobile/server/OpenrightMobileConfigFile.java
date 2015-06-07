@@ -18,4 +18,9 @@ public class OpenrightMobileConfigFile extends AppConfigFile implements Openrigh
         return Integer.parseInt(getProperty("parental.http.port", "3000"));
     }
 
+    @Override
+    public String getGoogleApiKey() {
+        return getRequiredProperty("google.api.key");
+    }
+
 }

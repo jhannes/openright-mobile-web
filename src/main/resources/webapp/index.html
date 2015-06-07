@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#333388">
   <link rel="icon" sizes="192x192" href="images/app-icon-192px.png">
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
   <header>
@@ -66,6 +67,15 @@
             <label class="field">Location: <input type="text" id="settings__location"/></label>
             <button>Save</button>
           </form>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card__header">Push notifications</div>
+        <div class="card__body">
+          <label class="checkbox_button">
+            <input type="checkbox" onchange="toggleNotifications()" />
+            Receive push notifications
+          </label>
         </div>
       </div>
       <div class="card">
@@ -274,6 +284,47 @@ function showCamera() {
     capturePictureMessage(videoSources, videoSources[videoSources.length - 1].id);
   });
 }
+
+var toggleNotifications;
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register('scripts/serviceworker.js').then(function(registration) {
+    console.log("service worker registered");
+
+    registration.pushManager.getSubscription().then(function(sub) {
+      if (sub) {
+        console.log("already have subscription!", sub);
+      } else {
+        console.log("you don't have a registration");
+      }
+    });
+
+    toggleNotifications = function() {
+      var notifications = window.event.target;
+      if (notifications.checked) {
+        console.log("test");
+        notifications.checked = false;
+        notifications.disabled = true;
+        registration.pushManager.subscribe({userVisibleOnly:true}).then(function(sub) {
+          console.log("subscription", sub);
+          fetch("api/subscribers", {
+            method: 'post',
+            headers: {'Content-type': 'text/json'},
+            body: JSON.stringify({endpoint: sub.endpoint})
+          });
+          notifications.checked = true;
+          notifications.disabled = false;
+        }).catch(function(e) {
+          console.error(e);
+          notifications.disabled = false;
+          notifications.checked = false;
+        });
+      }
+    };
+  });
+}
+
+
 
 function showLocation() {
   var camera = document.querySelector("#camera");

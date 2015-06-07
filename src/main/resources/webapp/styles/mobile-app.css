@@ -173,11 +173,34 @@ section#article-base {
   border-color: #387EF5;
   background-color: #387EF5;
 }
-
 .card button:disabled {
   color: #888;
   border-color: #ccc;
   background-color: #ccc;
+}
+
+label.checkbox_button {
+  width: 99%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  display: block;
+  padding-top: 1em;
+  min-height: 2em;
+  min-width: 3em;
+  font-family: 'Helvetica Neue', Roboto, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  color: white;
+  border-right: solid 2px #1725f5;
+  border-bottom: solid 2px #1725f5;
+  background-color: #387EF5;
+  -webkit-user-select: none;
+  text-align: center;
+  vertical-align: text-bottom;
+}
+label.checkbox_button input {
+  height: 1.5em;
+  width: 1.5em;
+  vertical-align: bottom;
 }
 /* END card style */
 
