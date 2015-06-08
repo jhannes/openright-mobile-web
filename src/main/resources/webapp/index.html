@@ -24,7 +24,7 @@
   <main>
   </main>
   <section id="article-base">
-    <article id="chats" onshow="showMessages()">
+    <article id="chats">
 
     </article>
     <article id="camera" onshow="showCamera()">
@@ -153,30 +153,29 @@
 <script src="scripts/vendor/jquery-2.1.4.min.js"></script>
 <script src="scripts/vendor/jquery.timeago.js" type="text/javascript"></script>
 <script src="scripts/vendor/handlebars.js" type="text/javascript"></script>
+<script src="scripts/mobile-web.js"></script>
 <script type="text/x-handlebars-template" id="messageTemplate">
-  {{#each .}}
-    <div class="message">
-      <div class="message__header">
-        {{#if avatar}}
-          <img src="{{avatar}}" width="100" alt=""/>
-        {{else}}
-          <img src="images/anonymous.jpg" width="100" alt=""/>
+  <div class="message">
+    <div class="message__header">
+      {{#if avatar}}
+        <img src="{{avatar}}" width="100" alt=""/>
+      {{else}}
+        <img src="images/anonymous.jpg" width="100" alt=""/>
+      {{/if}}
+      <h2>
+        {{name}}
+        {{#if latitude}}
+          <a class="fa fa-location-arrow"
+              href="http://maps.googleapis.com/maps/api/staticmap?center={{latitude}},{{longitude}}&zoom=14&size=400x300&sensor=false">
+          </a>
         {{/if}}
-        <h2>
-          {{name}}
-          {{#if latitude}}
-            <a class="fa fa-location-arrow"
-                href="http://maps.googleapis.com/maps/api/staticmap?center={{latitude}},{{longitude}}&zoom=14&size=400x300&sensor=false">
-            </a>
-          {{/if}}
-        </h2>
-        <p class="timeago" title="{{createdAt}}">&nbsp;</p>
-      </div>
-      <div class="message__body">
-        <img class="full-image" src="{{picture}}">
-      </div>
+      </h2>
+      <p class="timeago" title="{{createdAt}}">&nbsp;</p>
     </div>
-  {{/each}}
+    <div class="message__body">
+      <img class="full-image" src="{{picture}}">
+    </div>
+  </div>
 </script>
 <script>
 navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate
@@ -187,33 +186,50 @@ navigator.getUserMedia = navigator.getUserMedia ||
         navigator.msGetUserMedia ||
         function(options, callback, errorHandler) { errorHandler("getUserMedia not supported"); };
 
+
+
 var messageTemplate = Handlebars.compile(document.querySelector("#messageTemplate").innerHTML);
+function appendMessage(data) {
+  $("#chats").prepend(messageTemplate(data));
+  $(".timeago").timeago();
+}
+
+function replaceMessages(list) {
+  var div = $("<div>");
+  list.forEach(function (m) {
+    div.prepend(messageTemplate(m))
+  });
+
+  $("#chats").html(div.html());
+  $(".timeago").timeago();
+}
+
+function displayCurrentLocation() {
+  var $main = $("main");
+  $("nav li").removeClass("active");
+  $main.fadeOut(500).hide(function() {
+    window.scrollTo(0, 0);
+    $main.html($(window.location.hash).clone());
+    $main.fadeIn(1000);
+    $("nav li a[href=" + window.location.hash + "]")
+            .closest("li").addClass("active");
+
+    if ($main.find($(window.location.hash)).attr("onshow")) {
+      eval($main.find($(window.location.hash)).attr("onshow"));
+    }
+  });
+}
 
 $(function() {
-  var $main = $("main");
-
-  $(".timeago").timeago();
-
-  function displayCurrentLocation() {
-    $("nav li").removeClass("active");
-    $main.fadeOut(500).hide(function() {
-      window.scrollTo(0, 0);
-      $main.html($(window.location.hash).clone());
-      $main.fadeIn(1000);
-      $("nav li a[href=" + window.location.hash + "]")
-              .closest("li").addClass("active");
-
-      if ($main.find($(window.location.hash)).attr("onshow")) {
-        eval($main.find($(window.location.hash)).attr("onshow"));
-      }
-    });
-  }
-
   if (!window.location.hash) {
     window.location.hash = "#chats";
   }
   $(window).bind('hashchange', displayCurrentLocation);
   displayCurrentLocation();
+
+  createDatabase().then(function(db) {
+    startMessageController(messageDatabase(db), replaceMessages, appendMessage);
+  });
 });
 
 function sendPicture() {
@@ -229,15 +245,12 @@ function sendPicture() {
   };
   fetch("api/messages", {
     method: 'post',
-    headers: {
-      'Content-type': 'text/json'
-    },
+    headers: { 'Content-type': 'text/json' },
     body: JSON.stringify(message)
   }).then(function() {
     window.location.hash = "#chats";
   }).catch(function(error) {
-    console.log("error");
-    console.log(error);
+    console.log("error", error);
   });
 }
 
@@ -325,7 +338,6 @@ if ("serviceWorker" in navigator) {
 }
 
 
-
 function showLocation() {
   var camera = document.querySelector("#camera");
   var location = camera.querySelector("#camera__include_location");
@@ -337,17 +349,6 @@ function showLocation() {
       location.dataset.latitude = l.coords.latitude;
     });
   }
-}
-
-function showMessages() {
-  var $chats = $("#chats");
-  $chats.empty();
-  fetch("api/messages").then(function(response) {
-    return response.json();
-  }).then(function(data) {
-    $chats.html(messageTemplate(data.messages));
-    $(".timeago").timeago();
-  });
 }
 
 function savePersonalInfo() {
