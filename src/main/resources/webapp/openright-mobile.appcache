@@ -1,0 +1,31 @@
+CACHE MANIFEST
+
+CACHE:
+favicon.ico
+index.html
+fonts/fontawesome-webfont.eot
+fonts/fontawesome-webfont.svg
+fonts/fontawesome-webfont.ttf
+fonts/fontawesome-webfont.woff
+fonts/fontawesome-webfont.woff2
+fonts/FontAwesome.otf
+images/app-icon-192px.png
+images/anonymous.jpg
+scripts/mobile-web.js
+scripts/serviceworker.js
+scripts/vendor/handlebars.js
+scripts/vendor/jquery-2.1.4.min.js
+scripts/vendor/jquery.timeago.js
+styles/font-awesome.css
+styles/font-awesome.min.css
+styles/mobile-app.css
+
+NETWORK:
+*
+
+FALLBACK:
+fonts/fontawesome-webfont.eot fonts/fontawesome-webfont.eot
+fonts/fontawesome-webfont.svg fonts/fontawesome-webfont.svg
+fonts/fontawesome-webfont.ttf fonts/fontawesome-webfont.ttf
+fonts/fontawesome-webfont.woff fonts/fontawesome-webfont.woff
+fonts/fontawesome-webfont.woff2 fonts/fontawesome-webfont.woff2
