@@ -9,11 +9,19 @@ self.addEventListener('push', function(event) {
   };
 
   return event.waitUntil(
-      self.registration.showNotification("Title", notification));
+      self.registration.showNotification("Openright Mobile", notification));
 });
 
 self.addEventListener('notificationclick', function(event) {
   console.log("On notification click", event);
   event.notification.close();
-  clients.openWindow("play-sound.html");
+
+  event.waitUntil(clients.matchAll({type:"window"}).then(function(clientList) {
+    if (clientList.length) {
+      clientList[0].url = "/mobile/#chats";
+      return clientList[0].focus();
+    } else {
+      return clients.openWindow("/mobile/#chats");
+    }
+  }));
 });
