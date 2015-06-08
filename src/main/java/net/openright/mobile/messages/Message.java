@@ -8,8 +8,8 @@ public class Message {
     private Instant createdAt = Instant.now();
     private String pictureDataUrl;
     private boolean hasLocation;
-    private Double longitude;
-    private Double latitude;
+    private String longitude;
+    private String latitude;
     private String avatarDataUrl;
     private String name;
 
@@ -23,8 +23,8 @@ public class Message {
         message.avatarDataUrl = jsonObject.optString("avatar");
         message.pictureDataUrl = jsonObject.getString("picture");
         message.hasLocation = jsonObject.getBoolean("location");
-        message.longitude = (Double) jsonObject.opt("longitude");
-        message.latitude = (Double) jsonObject.opt("latitude");
+        message.longitude = jsonObject.optString("longitude");
+        message.latitude = jsonObject.optString("latitude");
         return message;
     }
 

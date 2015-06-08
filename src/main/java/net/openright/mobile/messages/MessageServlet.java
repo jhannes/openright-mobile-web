@@ -147,8 +147,6 @@ public class MessageServlet extends HttpServlet {
             resp.getWriter().flush();
         }
 
-        IOUtil.toString(req.getReader());
-
         eventSources.add(req.startAsync());
     }
 
