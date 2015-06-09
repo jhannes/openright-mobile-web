@@ -120,27 +120,44 @@
         </p>
       </div>
       <div class="card">
-        <p class="card__body">
+        <p class="card__header">
           Styling for a mobile look and feel, installing on the home screen
         </p>
       </div>
       <div class="card">
-        <p class="card__body">
+        <div class="card__header">
           Vibration and location APIs
+        </div>
+        <p class="card__body">
+          <button onclick="navigator.vibrate([100,100,500,100,100])">Vibrate</button>
+          <button onclick="demoShowLocation()">Show my location</button>
         </p>
       </div>
       <div class="card">
-        <p class="card__body">
+        <div class="card__header">
+          Not demoed: Accelerometer
+        </div>
+        <div class="card__body" id="accel" style="display: none">
+          <p style="font-family: monospace">x: <span id="accel_x"></span></p>
+          <p style="font-family: monospace">y: <span id="accel_y"></span></p>
+          <p style="font-family: monospace">z: <span id="accel_z"></span></p>
+          <p style="font-family: monospace">alpha: <span id="accel_alpha"></span> degrees</p>
+          <p style="font-family: monospace">beta: <span id="accel_beta"></span> degrees</p>
+          <p style="font-family: monospace">gamma: <span id="accel_gamma"></span> degrees</p>
+        </div>
+      </div>
+      <div class="card">
+        <p class="card__header">
           Camera controls in web pages
         </p>
       </div>
       <div class="card">
-        <p class="card__body">
-          Offline support (and offline detection)
+        <p class="card__header">
+          Offline support
         </p>
       </div>
       <div class="card">
-        <p class="card__body">
+        <p class="card__header">
           Push messages
         </p>
       </div>
@@ -217,6 +234,12 @@ function displayCurrentLocation() {
     if ($main.find($(window.location.hash)).attr("onshow")) {
       eval($main.find($(window.location.hash)).attr("onshow"));
     }
+  });
+}
+
+function demoShowLocation() {
+  navigator.geolocation.getCurrentPosition(function(l) {
+    window.location = "http://maps.googleapis.com/maps/api/staticmap?center=" + l.coords.latitude +","+ l.coords.longitude + "&zoom=14&size=400x300&sensor=false";
   });
 }
 
@@ -413,6 +436,21 @@ function showAvatarCamera() {
       return s.kind === "video" && (!s.facing || s.facing == "user");
     });
     previewAvatarCamera(videoSources[0].id);
+  });
+}
+
+if(window.DeviceOrientationEvent) {
+  document.getElementById("accel").style.display = "";
+  window.addEventListener('deviceorientation', function(event) {
+    document.getElementById("accel_alpha").textContent = (event.alpha >= 0 ? "+" : "") + event.alpha.toFixed(0);
+    document.getElementById("accel_beta").textContent = (event.beta >= 0 ? "+" : "") + event.beta.toFixed(0);
+    document.getElementById("accel_gamma").textContent = (event.gamma >= 0 ? "+" : "") + event.gamma.toFixed(0);
+  }, false);
+  window.addEventListener('devicemotion', function(event) {
+    console.log(event.interval);
+    document.getElementById("accel_x").textContent = (event.acceleration.x >= 0 ? "+" : "") + event.acceleration.x.toFixed(1);
+    document.getElementById("accel_y").textContent = (event.acceleration.y >= 0 ? "+" : "") + event.acceleration.y.toFixed(1);
+    document.getElementById("accel_z").textContent = (event.acceleration.z >= 0 ? "+" : "") + event.acceleration.z.toFixed(1);
   });
 }
 </script>
