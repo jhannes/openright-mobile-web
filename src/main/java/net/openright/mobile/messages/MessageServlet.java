@@ -151,6 +151,9 @@ public class MessageServlet extends HttpServlet {
             JSONObject initMessage = new JSONObject().put("last_seen", messages.lastKey());
             resp.getWriter().write("event: streamStarting\n");
             resp.getWriter().write("data: " + initMessage + "\n\n");
+        } else {
+            resp.getWriter().write("event: emptyDatabase\n");
+            resp.getWriter().write("data: {}\n\n");
         }
         resp.flushBuffer();
 

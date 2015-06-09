@@ -26,22 +26,21 @@ function startMessageController(messageDb, replaceMessages, appendMessage) {
   }
 
   var messageEvents = new EventSource("api/messages");
-  messageEvents.onmessage = function(event) {
-    var data = JSON.parse(event.data);
-    if (data.picture) {
-      console.log("on message", data);
-      messageDb.save(data);
-      appendMessage(data);
-    }
-    if (data.last_seen) {
-      fetchMissingMessages(data.last_seen);
-    }
-  };
   messageEvents.onerror = function() {
     refreshMessages(messageDb);
   };
+  messageEvents.addEventListener("message", function(event) {
+    var data = JSON.parse(event.data);
+    console.log("on message", data);
+    messageDb.save(data);
+    appendMessage(data);
+  });
   messageEvents.addEventListener("streamStarting", function(event) {
     fetchMissingMessages(JSON.parse(event.data).last_seen, messageDb);
+  });
+  messageEvents.addEventListener("emptyDatabase", function(event) {
+    console.log("emptyDb");
+    messageDb.clear();
   });
 }
 
@@ -96,10 +95,17 @@ function messageDatabase(db) {
     var store = transaction.objectStore("messages");
     store.put(message);
   }
+  function clear() {
+    var transaction = db.transaction(["messages"],"readwrite");
+    var store = transaction.objectStore("messages");
+    store.clear();
+  }
+
 
   return {
     lastCreatedTimestamp: lastCreatedTimestamp,
     list: list,
-    save: save
+    save: save,
+    clear: clear
   };
 }

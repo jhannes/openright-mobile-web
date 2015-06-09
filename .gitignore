@@ -1,3 +1,5 @@
 /target
 /.idea
 /*.iml
+logging-openright-mobile.xml
+openright-mobile.properties
