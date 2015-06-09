@@ -23,7 +23,6 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.Objects;
@@ -111,8 +110,7 @@ public class MessageServlet extends HttpServlet {
     }
 
     private void notifyEventSources(Message message) {
-        for (Iterator<AsyncContext> iterator = eventSources.iterator(); iterator.hasNext(); ) {
-            AsyncContext eventSource = iterator.next();
+        for (AsyncContext eventSource : new ArrayList<>(eventSources)) {
             try {
                 PrintWriter writer = eventSource.getResponse().getWriter();
                 writer.write("id: " + message.getCreatedAt().toString() + "\r\n");
@@ -120,10 +118,10 @@ public class MessageServlet extends HttpServlet {
                 writer.flush();
             } catch (IllegalStateException e) {
                 log.warn("Closing dead connection");
-                iterator.remove();
+                eventSources.remove(eventSource);
             } catch (IOException e) {
                 log.error("Closing dead connection", e);
-                iterator.remove();
+                eventSources.remove(eventSource);
                 eventSource.complete();
             }
         }
