@@ -29,14 +29,15 @@ public class SubscriberServlet extends HttpServlet {
     }
 
     private void addRegistration(String endpoint) {
-        if (endpoint.startsWith(ENDPOINT_PREFIX)) {
-            this.registrations.add(endpoint.substring(ENDPOINT_PREFIX.length()));
-        } else {
-            this.registrations.add(endpoint);
-        }
+        this.registrations.add(endpoint);
     }
 
     private String fromJSON(JSONObject jsonObject) {
-        return jsonObject.getString("endpoint");
+        String endpoint = jsonObject.getString("endpoint");
+        if (endpoint.startsWith(ENDPOINT_PREFIX)) {
+            return endpoint.substring(ENDPOINT_PREFIX.length());
+        } else {
+            return jsonObject.getString("subscriptionId");
+        }
     }
 }

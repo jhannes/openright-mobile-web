@@ -315,7 +315,6 @@ if ("serviceWorker" in navigator) {
     toggleNotifications = function() {
       var notifications = window.event.target;
       if (notifications.checked) {
-        console.log("test");
         notifications.checked = false;
         notifications.disabled = true;
         registration.pushManager.subscribe({userVisibleOnly:true}).then(function(sub) {
@@ -323,7 +322,7 @@ if ("serviceWorker" in navigator) {
           fetch("api/subscribers", {
             method: 'post',
             headers: {'Content-type': 'text/json'},
-            body: JSON.stringify({endpoint: sub.endpoint})
+            body: JSON.stringify(sub)
           });
           notifications.checked = true;
           notifications.disabled = false;
