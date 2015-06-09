@@ -342,7 +342,9 @@ function showLocation() {
   var location = camera.querySelector("#camera__include_location");
   if (location.checked) {
     location.checked = false;
+    location.disabled = true;
     navigator.geolocation.getCurrentPosition(function(l) {
+      location.disabled = false;
       location.checked = true;
       location.dataset.longitude = l.coords.longitude;
       location.dataset.latitude = l.coords.latitude;

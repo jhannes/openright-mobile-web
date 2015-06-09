@@ -1,7 +1,19 @@
 {
   "name": "The New New Mobile Web",
-  "short_name": "Mobile Web",
-  "start_url": "/index.html",
+  "short_name": "Openright Mobile",
+  "icons": [
+    {
+      "src": "images/app-icon-192px.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/app-icon-144px.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
   "display": "standalone",
   "gcm_sender_id": "106376415192",
   "gcm_user_visible_only": true
