@@ -28,6 +28,8 @@ import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,10 +41,16 @@ public class MessageServlet extends HttpServlet {
     private final Set<String> registrations;
     private final OpenrightMobileConfig config;
     private final List<AsyncContext> eventSources = new ArrayList<>();
+    private ExecutorService eventSourceNotifier;
 
     public MessageServlet(OpenrightMobileConfig config, Set<String> registrations) {
         this.config = config;
         this.registrations = registrations;
+    }
+
+    @Override
+    public void init() throws ServletException {
+        eventSourceNotifier = Executors.newSingleThreadExecutor();
     }
 
     @Override
@@ -105,16 +113,18 @@ public class MessageServlet extends HttpServlet {
         resp.setStatus(200);
 
         addMessage(message);
-        notifyEventSources(message);
         notifySubscribers();
+        eventSourceNotifier.submit(() -> notifyEventSources(message));
     }
 
     private void notifyEventSources(Message message) {
+        log.info("Notifying eventSources {}", eventSources);
         for (AsyncContext eventSource : new ArrayList<>(eventSources)) {
             try {
                 PrintWriter writer = eventSource.getResponse().getWriter();
                 writer.write("id: " + message.getCreatedAt().toString() + "\r\n");
                 writer.write("data: " + message.toJSON() + "\r\n\r\n");
+                log.debug("Flushing {}", eventSource);
                 writer.flush();
             } catch (IllegalStateException e) {
                 log.warn("Closing dead connection");
@@ -132,7 +142,6 @@ public class MessageServlet extends HttpServlet {
         resp.setContentType("text/event-stream");
         resp.setCharacterEncoding("UTF-8");
         resp.addHeader("Connection", "close");
-        resp.flushBuffer();
 
         if (req.getHeader("Last-Event-ID") != null) {
             System.out.println(req.getHeader("Last-Event-ID"));
@@ -142,8 +151,8 @@ public class MessageServlet extends HttpServlet {
             JSONObject initMessage = new JSONObject().put("last_seen", messages.lastKey());
             resp.getWriter().write("event: streamStarting\n");
             resp.getWriter().write("data: " + initMessage + "\n\n");
-            resp.getWriter().flush();
         }
+        resp.flushBuffer();
 
         eventSources.add(req.startAsync());
     }
@@ -155,6 +164,7 @@ public class MessageServlet extends HttpServlet {
         URL url = new URL("https://android.googleapis.com/gcm/send");
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestProperty("Authorization", "key=" + config.getGoogleApiKey());
+        log.info("{}", notification);
         JSONUtil.copy(notification, urlConnection);
         log.info("{}", IOUtil.toString(urlConnection));
     }
