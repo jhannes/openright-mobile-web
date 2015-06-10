@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +25,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Set;
@@ -40,7 +42,7 @@ public class MessageServlet extends HttpServlet {
     private final TreeMap<Instant, Message> messages = new TreeMap<>();
     private final Set<String> registrations;
     private final OpenrightMobileConfig config;
-    private final List<AsyncContext> eventSources = new ArrayList<>();
+    private final Set<AsyncContext> eventSources = new HashSet<>();
     private ExecutorService eventSourceNotifier;
 
     public MessageServlet(OpenrightMobileConfig config, Set<String> registrations) {
@@ -143,21 +145,41 @@ public class MessageServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
         resp.addHeader("Connection", "close");
 
-        if (req.getHeader("Last-Event-ID") != null) {
-            System.out.println(req.getHeader("Last-Event-ID"));
-        }
-
+        PrintWriter writer = resp.getWriter();
         if (!messages.isEmpty()) {
             JSONObject initMessage = new JSONObject().put("last_seen", messages.lastKey());
-            resp.getWriter().write("event: streamStarting\n");
-            resp.getWriter().write("data: " + initMessage + "\n\n");
+            writer.write("event: streamStarting\n");
+            writer.write("data: " + initMessage + "\n\n");
         } else {
-            resp.getWriter().write("event: emptyDatabase\n");
-            resp.getWriter().write("data: {}\n\n");
+            writer.write("event: emptyDatabase\n");
+            writer.write("data: {}\n\n");
         }
         resp.flushBuffer();
 
-        eventSources.add(req.startAsync());
+        AsyncContext async = req.startAsync();
+        async.addListener(new AsyncListener() {
+            @Override
+            public void onComplete(AsyncEvent event) throws IOException {
+                log.debug("onComplete: {}", event);
+            }
+
+            @Override
+            public void onTimeout(AsyncEvent event) throws IOException {
+                log.debug("onTimeout: {}", event);
+                eventSources.remove(async);
+            }
+
+            @Override
+            public void onError(AsyncEvent event) throws IOException {
+                log.debug("onError: {}", event);
+            }
+
+            @Override
+            public void onStartAsync(AsyncEvent event) throws IOException {
+                log.debug("onStartAsync: {}", event);
+            }
+        });
+        eventSources.add(async);
     }
 
     private void notifySubscribers() throws IOException {
