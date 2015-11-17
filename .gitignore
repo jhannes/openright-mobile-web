@@ -3,3 +3,7 @@
 /*.iml
 logging-openright-mobile.xml
 openright-mobile.properties
+/.classpath
+/.project
+/.settings
+/logs

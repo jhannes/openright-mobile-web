@@ -36,7 +36,7 @@ public class AppConfigFile {
     public String getRequiredProperty(String propertyName) {
         String result = getProperty(propertyName);
         if (result == null) {
-            throw new RuntimeException("Missing property " + propertyName + " in " + configFile);
+            throw new RuntimeException("Missing property " + propertyName + " in " + configFile.getAbsolutePath());
         }
         return result;
     }
