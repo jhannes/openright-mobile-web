@@ -156,7 +156,7 @@ public class MessageServlet extends HttpServlet {
         }
         resp.flushBuffer();
 
-        AsyncContext async = req.startAsync();
+        final AsyncContext async = req.startAsync();
         async.addListener(new AsyncListener() {
             @Override
             public void onComplete(AsyncEvent event) throws IOException {
@@ -167,6 +167,7 @@ public class MessageServlet extends HttpServlet {
             public void onTimeout(AsyncEvent event) throws IOException {
                 log.debug("onTimeout: {}", event);
                 eventSources.remove(async);
+                async.complete();
             }
 
             @Override
